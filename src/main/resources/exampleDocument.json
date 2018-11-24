@@ -1,0 +1,38 @@
+{
+  "emp_no": " 00000000-0000-0000-0000-000000000000",
+  "birth_date" : "2000-01-30",
+  "first_name" : "string",
+  "last_name" : "string",
+  "gender" : "M",
+  "hire_date" : "2000-01-30",
+  "titles" : [
+    {
+      "title" : "string",
+      "from_date" : "2000-01-30",
+      "to_date" : "2000-01-30"
+    }
+  ],
+  "salaries" : [
+    {
+      "salary" : 0,
+      "from_date" : "2000-01-30",
+      "to_date" : "2000-01-30"
+    }
+  ],
+  "departments" : [
+    {
+      "dept_no" : "string",
+      "name": "string",
+      "from_date" : "2000-01-30",
+      "to_date" : "2000-01-30"
+    }
+  ],
+  "managing" : [
+    {
+      "dept_no" : "string",
+      "name": "string",
+      "from_date" : "2000-01-30",
+      "to_date" : "2000-01-30"
+    }
+  ]
+}
