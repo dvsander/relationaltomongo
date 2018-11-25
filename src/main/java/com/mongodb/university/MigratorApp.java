@@ -1,6 +1,5 @@
 package com.mongodb.university;
 
-import com.mongodb.MongoClient;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,9 +8,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -22,8 +18,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.ThreadPoolExecutor;
 
-@SpringBootApplication // needed for start-up
-@EnableScheduling // needed for logging progress
+@SpringBootApplication
+@EnableScheduling
 public class MigratorApp implements CommandLineRunner{
 
     @Autowired

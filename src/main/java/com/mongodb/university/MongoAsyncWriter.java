@@ -2,7 +2,6 @@ package com.mongodb.university;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.Updates;
@@ -34,7 +33,7 @@ public class MongoAsyncWriter {
 
     public static final String THREADPOOL_NAME = "threadPoolTaskExecutor";
 
-    private static final int POOL_SIZE = 490;
+    private static final int POOL_SIZE = 100;
 
     private Logger logger = LoggerFactory.getLogger(MongoAsyncWriter.class);
 
@@ -67,7 +66,7 @@ public class MongoAsyncWriter {
             throw  new IllegalStateException("Unable to bootstrap from example document.", e);
         }
 
-        mongoCollection.createIndex(IDX_EMPNO, new IndexOptions().background(false));
+        mongoCollection.createIndex(IDX_EMPNO, new IndexOptions().background(false).unique(true));
     }
 
     @Async(THREADPOOL_NAME)
@@ -81,19 +80,21 @@ public class MongoAsyncWriter {
         Document managerEmp = (Document) in.get("manager");
 
         mongoCollection.updateOne(
-                new Document().append("emp_no", findEmp.get("emp_no")),
-                new Document().append("$setOnInsert", findEmp),
-                new UpdateOptions().upsert(true)
-        );
-
-        mongoCollection.updateOne(
-                Filters.eq("emp_no", findEmp.get("emp_no")),
+                new Document("emp_no", findEmp.get("emp_no")),
                 Updates.combine(
+                        Updates.setOnInsert("emp_no", findEmp.get("emp_no")),
+                        Updates.setOnInsert("birth_date", findEmp.get("birth_date")),
+                        Updates.setOnInsert("first_name", findEmp.get("first_name")),
+                        Updates.setOnInsert("last_name", findEmp.get("last_name")),
+                        Updates.setOnInsert("gender", findEmp.get("gender")),
+                        Updates.setOnInsert("hire_date", findEmp.get("hire_date")),
                         Updates.addToSet("salaries", salaryEmp),
                         Updates.addToSet("titles", titleEmp),
                         Updates.addToSet("departments", deptEmp),
                         Updates.addToSet("managing", managerEmp)
-                ));
+                ),
+                new UpdateOptions().upsert(true)
+        );
 
     }
 }
