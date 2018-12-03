@@ -1,0 +1,31 @@
+{
+  "_id": "00000000-0000-0000-0000-000000000000",
+  "emp_no": "string",
+  "birth_date": "1953-09-02T00:00:00.000Z",
+  "first_name": "Georgi",
+  "gender": "M",
+  "hire_date": "1986-06-26T00:00:00.000Z",
+  "last_name": "Facello",
+  "departments": [
+    {
+      "dept_no": "d005",
+      "from_date": "1986-06-26T00:00:00.000Z",
+      "to_date": "9999-01-01T00:00:00.000Z",
+      "name": "Development"
+    }
+  ],
+  "salaries": [
+    {
+      "salary": 60117,
+      "from_date": "1986-06-26T00:00:00.000Z",
+      "to_date": "1987-06-26T00:00:00.000Z"
+    }
+  ],
+  "titles": [
+    {
+      "title": "Senior Engineer",
+      "from_date": "1986-06-26T00:00:00.000Z",
+      "to_date": "9999-01-01T00:00:00.000Z"
+    }
+  ]
+}

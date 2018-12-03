@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,29 +24,31 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class MigratorApp implements CommandLineRunner{
 
     @Autowired
-    private EmployeeSqlCursor employeeSqlCursor;
-
-    @Autowired
-    private EmployeeSqlToMongoMapper employeeSqlToMongoMapper;
+    private EmployeeRepository employeeRepository;
 
     @Autowired
     private MongoAsyncWriter mongoAsyncWriter;
 
     @Autowired
+    private EmployeeSqlToMongoMapper employeeSqlToMongoMapper;
+
+    @Autowired
     @Qualifier(MongoAsyncWriter.THREADPOOL_NAME)
     private ThreadPoolTaskExecutor executor;
 
+    @Value("${worker.batchSize}")
+    private int batchSize;
+
+    @Value("${worker.drainLevel}")
+    private int drainLevel;
+
+    private Instant startTime;
+    private int rowNumber;
     private Logger logger = LoggerFactory.getLogger(MigratorApp.class);
 
     public static void main(String[] args) {
         SpringApplication.run(MigratorApp.class, args);
     }
-
-    private static final int BATCH_SIZE = 100000;
-    private static final int DRAIN_LEVEL = 1000;
-
-    private Instant startTime;
-    private int rowNumber;
 
     @Override
     public void run(String... args) throws Exception {
@@ -54,7 +57,7 @@ public class MigratorApp implements CommandLineRunner{
         this.rowNumber = 0;
 
         // 1. Open the cursor to the relational database
-        final ResultSet resultSet = employeeSqlCursor.buildIterator();
+        final ResultSet resultSet = employeeRepository.buildIterator();
 
         // 2. Loop the cursor
         try {
@@ -66,12 +69,11 @@ public class MigratorApp implements CommandLineRunner{
                 // 4. Send to mongodb
                 mongoAsyncWriter.write(doc);
 
-                ++rowNumber;
-
                 // 5. Optional: could run out of memory when looping cursor. Some batching logic.
-                if (executor.getThreadPoolExecutor().getQueue().size() > BATCH_SIZE){
-                    logger.info("PAUSE.", BATCH_SIZE);
-                    while (executor.getThreadPoolExecutor().getQueue().size() > DRAIN_LEVEL){
+                ++rowNumber;
+                if (executor.getThreadPoolExecutor().getQueue().size() > batchSize){
+                    logger.info("PAUSE.");
+                    while (executor.getThreadPoolExecutor().getQueue().size() > drainLevel){
                         // hold the door
                     }
                     logger.info("RESUMING...");

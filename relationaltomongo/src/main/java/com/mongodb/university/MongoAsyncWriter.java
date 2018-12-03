@@ -10,6 +10,7 @@ import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Async;
@@ -27,21 +28,16 @@ import java.nio.charset.Charset;
 @EnableAsync
 public class MongoAsyncWriter {
 
-    public static final String DB_NAME = "dev-app";
-    public static final String COLL_NAME = "employees";
     public static final Document IDX_EMPNO = new Document().append("emp_no", 1);
-
     public static final String THREADPOOL_NAME = "threadPoolTaskExecutor";
-
-    private static final int POOL_SIZE = 100;
 
     private Logger logger = LoggerFactory.getLogger(MongoAsyncWriter.class);
 
     @Bean(name = THREADPOOL_NAME)
     public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
         ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
-        threadPoolTaskExecutor.setCorePoolSize(POOL_SIZE);
-        threadPoolTaskExecutor.setMaxPoolSize(POOL_SIZE);
+        threadPoolTaskExecutor.setCorePoolSize(1);
+        threadPoolTaskExecutor.setMaxPoolSize(1);
         threadPoolTaskExecutor.setWaitForTasksToCompleteOnShutdown(true);
         return threadPoolTaskExecutor;
     }
@@ -49,13 +45,19 @@ public class MongoAsyncWriter {
     @Autowired
     private MongoClient mongoClient;
 
+    @Value("${mongo.database}")
+    private String mongoDatabaseName;
+
+    @Value("${mongo.collection}")
+    private String mongoCollectionName;
+
     @PostConstruct
     /**
      * Resets the collection entirely.
      * An example document is inserted to make sure indexes are created as well.
      */
     public void bootstrap(){
-        MongoCollection mongoCollection = mongoClient.getDatabase(DB_NAME).getCollection(COLL_NAME);
+        MongoCollection mongoCollection = mongoClient.getDatabase(mongoDatabaseName).getCollection(mongoCollectionName);
         mongoCollection.drop();
 
         try {
@@ -71,7 +73,7 @@ public class MongoAsyncWriter {
 
     @Async(THREADPOOL_NAME)
     public void write(Document in){
-        MongoCollection mongoCollection = mongoClient.getDatabase(DB_NAME).getCollection(COLL_NAME);
+        MongoCollection mongoCollection = mongoClient.getDatabase(mongoDatabaseName).getCollection(mongoCollectionName);
 
         Document findEmp = (Document) in.get("emp");
         Document titleEmp = (Document) in.get("title");

@@ -11,12 +11,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 @Repository
-public class EmployeeSqlCursor {
+public class EmployeeRepository {
 
     @Autowired
     private DataSource dataSource;
 
-    private Logger logger = LoggerFactory.getLogger(EmployeeSqlCursor.class);
+    private Logger logger = LoggerFactory.getLogger(EmployeeRepository.class);
 
     private static final String STATEMENT =
             "select\n" +
